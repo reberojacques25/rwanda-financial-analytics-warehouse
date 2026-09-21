@@ -58,20 +58,19 @@ CREATE TABLE IF NOT EXISTS mart.fact_banking_sector (
 -- Derived metrics fact table (clearly labeled as derived)
 CREATE TABLE IF NOT EXISTS mart.fact_derived_metrics (
     id                  SERIAL PRIMARY KEY,
-    derived_metric_id   VARCHAR(100) NOT NULL,
-    derived_metric_name VARCHAR(200) NOT NULL,
+    source_id           VARCHAR(50) NOT NULL,
+    indicator_id        VARCHAR(100) NOT NULL,
     date                DATE NOT NULL,
     frequency           VARCHAR(20) NOT NULL,
+    indicator_name      VARCHAR(200) NOT NULL,
     value               NUMERIC NOT NULL,
     unit                VARCHAR(50),
-    derivation_formula  TEXT NOT NULL,
-    source_inputs       TEXT NOT NULL,
+    evidence_classification VARCHAR(50) DEFAULT 'DERIVED',
     is_observed         BOOLEAN DEFAULT FALSE,
     is_derived          BOOLEAN DEFAULT TRUE,
-    evidence_classification VARCHAR(50) DEFAULT 'DERIVED',
     transformation_notes TEXT,
     retrieval_date      DATE DEFAULT CURRENT_DATE,
-    UNIQUE(derived_metric_id, date, frequency)
+    UNIQUE(source_id, indicator_id, date, frequency)
 );
 
 -- Exchange rates fact table

@@ -10,6 +10,16 @@ PROCESSED_DIR = DATA_DIR / "processed"
 METADATA_DIR = DATA_DIR / "metadata"
 SQL_DIR = PROJECT_ROOT / "sql"
 
+# Load .env file if it exists (for local development)
+_env_file = PROJECT_ROOT / ".env"
+if _env_file.exists():
+    with open(_env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, val = line.split("=", 1)
+                os.environ.setdefault(key.strip(), val.strip())
+
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "5432")
