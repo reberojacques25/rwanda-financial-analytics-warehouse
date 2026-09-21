@@ -123,14 +123,12 @@ def check_no_secrets(directory: str = ".") -> list:
     errors = []
     try:
         result = subprocess.run(
-            ["rg", "-l", "github_pat_|ghp_|sk-[a-zA-Z0-9]{20,}|api_key|password=|bearer\\s"],
-            directory, capture_output=True, text=True, bufsize=1024
+            ["rg", "-l", "github_pat_|ghp_[a-zA-Z0-9]{20,}|sk-[a-zA-Z0-9]{20,}|api_key=[a-zA-Z0-9]|password=[a-zA-Z0-9]|bearer\\s[a-zA-Z0-9]"],
+            cwd=directory, capture_output=True, text=True
         )
-        found = [f for f in result.stdout.strip().split("\n") if f and "test_" not in f and ".gitignore" not in f]
+        found = [f for f in result.stdout.strip().split("\n") if f and "test_" not in f and ".gitignore" not in f and "checks.py" not in f and "run_validation" not in f and "__pycache__" not in f and "docs/" not in f]
         if found:
             errors.append(f"Possible credentials found in: {found}")
     except FileNotFoundError:
-        pass
-    except TypeError:
         pass
     return errors

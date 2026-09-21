@@ -85,14 +85,28 @@ def compute_annual_averages(monthly_df: pd.DataFrame) -> pd.DataFrame:
     monthly_df = monthly_df.copy()
     monthly_df["year"] = pd.to_datetime(monthly_df["date"]).dt.year
 
+    # Count observations per indicator-year for coverage flags
+    obs_counts = monthly_df.groupby(["indicator_id", "year"]).size().reset_index(name="n_observations")
+
     annual = monthly_df.groupby(["indicator_id", "year"]).agg(
         value=("value", "mean"),
         indicator_name=("indicator_name", "first"),
         source_id=("source_id", "first"),
     ).reset_index()
 
+    annual = annual.merge(obs_counts, on=["indicator_id", "year"], how="left")
+
     records = []
     for _, row in annual.iterrows():
+        n_obs = int(row.get("n_observations", 0))
+        if n_obs >= 12:
+            coverage_note = "Full year (12 months)"
+        elif n_obs >= 6:
+            coverage_note = f"{n_obs} observations (bimonthly/quarterly source data)"
+        else:
+            coverage_note = f"Partial year ({n_obs} observations available)"
+        notes = f"Annual average computed from {n_obs} available observations. {coverage_note}."
+
         records.append({
             "source_id": row["source_id"],
             "indicator_id": row["indicator_id"],
@@ -104,7 +118,8 @@ def compute_annual_averages(monthly_df: pd.DataFrame) -> pd.DataFrame:
             "evidence_classification": "DERIVED",
             "is_observed": False,
             "is_derived": True,
-            "transformation_notes": "Annual average computed from monthly observations",
+            "transformation_notes": notes,
+            "n_observations": n_obs,
             "retrieval_date": date.today().isoformat(),
         })
 

@@ -97,4 +97,4 @@ See `data/metadata/source_catalog.yml` for full provenance details.
 
 ## License
 
-See `docs/DATA_SOURCES.md` and `docs/LICENSE.md` for dataset-specific licensing.
+See `docs/LICENSE.md` for dataset-specific licensing. Source data is NOT redistributed — raw files are fetched live from authoritative sources during pipeline execution.

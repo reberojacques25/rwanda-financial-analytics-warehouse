@@ -8,13 +8,16 @@
 credentials/
 .creds/
 
-# Raw and processed data (do not commit unless license explicitly permits)
+# Raw, interim, and processed data (not redistributed - licensing unclear)
 data/raw/*
 !data/raw/.gitkeep
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+# Generated dashboard data (contains source observations)
+dashboard/data.json
 
 # Python
 __pycache__/
