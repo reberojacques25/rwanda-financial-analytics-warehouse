@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rwanda Financial Analytics Warehouse</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --green: #4ade80;
+            --yellow: #facc15;
+            --red: #f87171;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 {
+            font-size: 28px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .chart-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-container h2 {
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+        .evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .evidence-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid var(--border);
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .evidence-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .evidence-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .ev-primary { background: rgba(74, 222, 128, 0.2); color: var(--green); }
+        .ev-secondary { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
+        .ev-derived { background: rgba(250, 204, 21, 0.2); color: var(--yellow); }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Rwanda Financial Analytics Warehouse</h1>
+        <p>Evidence-based financial data from BNR, World Bank, NISR, and bank disclosures</p>
+        <div class="badges">
+            <span class="badge">PostgreSQL Warehouse</span>
+            <span class="badge">Python Pipeline</span>
+            <span class="badge">Evidence-First Methodology</span>
+            <span class="badge">No Fabricated Data</span>
+        </div>
+    </header>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <div class="chart-container">
+        <h2>Central Bank Rate (CBR) — Monthly, 2002-2025</h2>
+        <div id="cbr-chart" class="chart"></div>
+    </div>
+
+    <div class="two-col">
+        <div class="chart-container">
+            <h2>Lending vs Deposit Rate — Monthly</h2>
+            <div id="rates-chart" class="chart"></div>
+        </div>
+        <div class="chart-container">
+            <h2>GDP Growth — Annual (World Bank)</h2>
+            <div id="gdp-chart" class="chart"></div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="chart-container">
+            <h2>Inflation (CPI, Annual %)</h2>
+            <div id="inflation-chart" class="chart"></div>
+        </div>
+        <div class="chart-container">
+            <h2>Exchange Rate (RWF per USD)</h2>
+            <div id="fx-chart" class="chart"></div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2>Annual Average Interest Rates (DERIVED)</h2>
+        <div id="annual-chart" class="chart"></div>
+    </div>
+
+    <div class="chart-container">
+        <h2>Evidence Classification Summary</h2>
+        <table class="evidence-table">
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Source</th>
+                    <th>Classification</th>
+                    <th>Records</th>
+                    <th>Observed</th>
+                    <th>Derived</th>
+                </tr>
+            </thead>
+            <tbody id="evidence-tbody"></tbody>
+        </table>
+    </div>
+
+    <div class="chart-container">
+        <h2>Data Sources & Provenance</h2>
+        <table class="evidence-table">
+            <thead>
+                <tr>
+                    <th>Source ID</th>
+                    <th>Organization</th>
+                    <th>Dataset</th>
+                    <th>Format</th>
+                    <th>Evidence</th>
+                    <th>License</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>BNR-IRS-001</td><td>National Bank of Rwanda</td><td>Interest Rate Structure</td><td>XLS</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>WB-MACRO-001</td><td>World Bank</td><td>World Development Indicators</td><td>API (JSON)</td><td><span class="evidence-tag ev-secondary">VERIFIED_SECONDARY</span></td><td>CC BY-4.0</td></tr>
+                <tr><td>BNR-FSS-001</td><td>National Bank of Rwanda</td><td>Financial Sector Statistics</td><td>PDF/Web</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>BNR-MPFSS-001</td><td>National Bank of Rwanda</td><td>Monetary Policy & Financial Stability</td><td>PDF</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>BNR-FX-001</td><td>National Bank of Rwanda</td><td>Exchange Rates</td><td>Web</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>NISR-GDP-001</td><td>NISR Rwanda</td><td>GDP National Accounts</td><td>PDF/Web</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>BNR-CPI-001</td><td>BNR / NISR</td><td>CPI / Inflation</td><td>PDF/Web</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>BANK-IMR-001</td><td>I&M Bank Rwanda</td><td>Annual Reports</td><td>PDF</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>BANK-BK-001</td><td>Bank of Kigali</td><td>Annual Reports</td><td>PDF</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>Publicly accessible</td></tr>
+                <tr><td>IMF-MACRO-001</td><td>IMF</td><td>DataMapper - Rwanda</td><td>Web</td><td><span class="evidence-tag ev-secondary">VERIFIED_SECONDARY</span></td><td>Publicly accessible</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>Rwanda Financial Analytics Warehouse | Data sourced from BNR, World Bank, NISR, and bank disclosures</p>
+        <p>Every observation carries source_id, retrieval_date, evidence_classification, and is_observed/is_derived flags</p>
+        <p>No fabricated data. Annual averages are labeled DERIVED. Raw data is not committed to the repository.</p>
+    </footer>
+
+    <script>
+        fetch('data.json')
+            .then(r => r.json())
+            .then(data => {
+                const plotConfig = {
+                    responsive: true,
+                    displayModeBar: false,
+                };
+                const layout = {
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: '#f1f5f9', size: 12 },
+                    xaxis: { gridcolor: '#334155', tickformat: '%Y' },
+                    yaxis: { gridcolor: '#334155' },
+                    margin: { l: 60, r: 20, t: 20, b: 40 },
+                    legend: { orientation: 'h', y: -0.2 },
+                    showlegend: true,
+                };
+
+                // Stats cards
+                const s = data.summary;
+                const stats = [
+                    { number: s.total_records.toLocaleString(), label: 'Total Records' },
+                    { number: s.bnr_records.toLocaleString(), label: 'BNR Monthly Records' },
+                    { number: s.wb_records.toLocaleString(), label: 'World Bank Records' },
+                    { number: s.annual_derived.toLocaleString(), label: 'Annual Averages (Derived)' },
+                    { number: s.year_range, label: 'Year Coverage' },
+                    { number: s.indicators, label: 'BNR Indicators' },
+                ];
+                document.getElementById('stats-grid').innerHTML = stats.map(st =>
+                    `<div class="stat-card"><div class="number">${st.number}</div><div class="label">${st.label}</div></div>`
+                ).join('');
+
+                // CBR chart
+                Plotly.newPlot('cbr-chart', [{
+                    x: data.cbr_monthly.dates,
+                    y: data.cbr_monthly.values,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'CBR',
+                    line: { color: '#38bdf8', width: 2 },
+                }], { ...layout, yaxis: { ...layout.yaxis, title: 'Percent (%)' } }, plotConfig);
+
+                // Lending vs Deposit
+                Plotly.newPlot('rates-chart', [
+                    { x: data.lending_monthly.dates, y: data.lending_monthly.values, type: 'scatter', mode: 'lines', name: 'Lending Rate', line: { color: '#f87171', width: 2 } },
+                    { x: data.deposit_monthly.dates, y: data.deposit_monthly.values, type: 'scatter', mode: 'lines', name: 'Deposit Rate', line: { color: '#4ade80', width: 2 } },
+                ], { ...layout, yaxis: { ...layout.yaxis, title: 'Percent (%)' } }, plotConfig);
+
+                // GDP Growth
+                Plotly.newPlot('gdp-chart', [{
+                    x: data.gdp_growth.dates,
+                    y: data.gdp_growth.values,
+                    type: 'bar',
+                    name: 'GDP Growth',
+                    marker: { color: data.gdp_growth.values.map(v => v >= 0 ? '#4ade80' : '#f87171') },
+                }], { ...layout, yaxis: { ...layout.yaxis, title: 'Percent (%)' } }, plotConfig);
+
+                // Inflation
+                Plotly.newPlot('inflation-chart', [{
+                    x: data.inflation.dates,
+                    y: data.inflation.values,
+                    type: 'bar',
+                    name: 'Inflation',
+                    marker: { color: '#facc15' },
+                }], { ...layout, yaxis: { ...layout.yaxis, title: 'Percent (%)' } }, plotConfig);
+
+                // Exchange rate
+                Plotly.newPlot('fx-chart', [{
+                    x: data.exchange_rate.dates,
+                    y: data.exchange_rate.values,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'RWF per USD',
+                    line: { color: '#38bdf8', width: 2 },
+                }], { ...layout, yaxis: { ...layout.yaxis, title: 'RWF' } }, plotConfig);
+
+                // Annual averages
+                Plotly.newPlot('annual-chart', [
+                    { x: data.cbr_annual.dates, y: data.cbr_annual.values, type: 'scatter', mode: 'lines+markers', name: 'CBR (avg)', line: { color: '#38bdf8' } },
+                    { x: data.lending_annual.dates, y: data.lending_annual.values, type: 'scatter', mode: 'lines+markers', name: 'Lending (avg)', line: { color: '#f87171' } },
+                    { x: data.deposit_annual.dates, y: data.deposit_annual.values, type: 'scatter', mode: 'lines+markers', name: 'Deposit (avg)', line: { color: '#4ade80' } },
+                ], { ...layout, yaxis: { ...layout.yaxis, title: 'Percent (%)' } }, plotConfig);
+
+                // Evidence table
+                document.getElementById('evidence-tbody').innerHTML = `
+                    <tr><td>BNR Interest Rates (Monthly)</td><td>BNR</td><td><span class="evidence-tag ev-primary">VERIFIED_PRIMARY</span></td><td>${s.bnr_records.toLocaleString()}</td><td>Yes</td><td>No</td></tr>
+                    <tr><td>BNR Annual Averages</td><td>BNR (computed)</td><td><span class="evidence-tag ev-derived">DERIVED</span></td><td>${s.annual_derived.toLocaleString()}</td><td>No</td><td>Yes</td></tr>
+                    <tr><td>World Bank Macro</td><td>World Bank</td><td><span class="evidence-tag ev-secondary">VERIFIED_SECONDARY</span></td><td>${s.wb_records.toLocaleString()}</td><td>Yes</td><td>No</td></tr>
+                `;
+            });
+    </script>
+</body>
+</html>
