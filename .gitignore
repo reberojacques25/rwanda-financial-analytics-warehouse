@@ -1,0 +1,44 @@
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+*token*
+*secret*
+credentials/
+.creds/
+
+# Raw and processed data (do not commit unless license explicitly permits)
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database dumps
+*.sql.gz
+*.dump
+
+# Jupyter
+.ipynb_checkpoints/

@@ -1,0 +1,379 @@
+# Rwanda Financial Analytics Warehouse — Data Source Catalog
+# Each source is documented with full provenance per Stage 6-7 requirements.
+# Evidence classifications: VERIFIED_PRIMARY, VERIFIED_SECONDARY, DERIVED, ESTIMATED, UNVERIFIED
+
+sources:
+  # === BNR Interest Rate Structure (PRIMARY - directly downloadable XLS) ===
+  - source_id: BNR-IRS-001
+    source_organization: National Bank of Rwanda (BNR)
+    dataset_name: Interest Rate Structure
+    source_url: https://www.bnr.rw/documents/Interest_rate_structure_up_to_March__2025.xls
+    landing_page: https://www.bnr.rw/Ecostatistics
+    retrieval_date: 2026-09-21
+    publication_date: "2025-03"
+    frequency: Monthly entries within annual sections
+    geographic_scope: Rwanda (national aggregate)
+    unit: percent
+    currency: N/A
+    format: XLS
+    access_type: direct_download
+    registration_required: false
+    api_available: false
+    license: Publicly accessible on BNR website; redistribution status unclear
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - central_bank_rate (CBR / Key Repo Rate historically)
+      - deposit_rate
+      - lending_rate
+      - interbank_rate
+      - repo_rate
+      - reverse_repo_rate
+      - reserve_requirement_rate
+      - treasury_bill_rate
+      - treasury_bond_rate
+    date_coverage: "2002-03 to 2025-03"
+    historical_completeness: Strong long-run coverage; rate names change over time (Key Repo Rate → CBR)
+    transformations_applied: None at source; ingestion normalizes year+period to date
+    methodology_notes: Rates are Rwanda-wide market averages, not bank-specific. Historical label changes require indicator mapping.
+    limitations: Not bank-specific; apparent frequency must be verified during parsing; methodology may vary across years
+    warehouse_use: Primary interest rate fact table (lending rate, deposit rate, CBR)
+    priority: 1
+
+  # === World Bank Macro Indicators (SECONDARY - API accessible) ===
+  - source_id: WB-MACRO-001
+    source_organization: World Bank
+    dataset_name: World Development Indicators - Rwanda
+    source_url: https://api.worldbank.org/v2/country/RWA/indicator
+    landing_page: https://data.worldbank.org/country/rwanda
+    retrieval_date: 2026-09-21
+    publication_date: "2025-07"
+    frequency: Annual
+    geographic_scope: Rwanda (national)
+    unit: varies by indicator
+    currency: USD (for monetary aggregates); percent (for rates)
+    format: JSON (API)
+    access_type: api
+    registration_required: false
+    api_available: true
+    api_endpoint: https://api.worldbank.org/v2/country/RWA/indicator/{indicator}?format=json&per_page=1000
+    license: CC BY-4.0 (World Bank data)
+    redistribution_status: allowed
+    evidence_classification: VERIFIED_SECONDARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - FP.CPI.TOTL.ZG (Inflation, consumer prices annual %)
+      - NY.GDP.MKTP.CD (GDP current US$)
+      - NY.GDP.MKTP.KD.ZG (GDP growth annual %)
+      - FR.INR.RINR (Real interest rate %)
+      - FR.INR.LEND (Lending interest rate %)
+      - FR.INR.DPST (Deposit interest rate %)
+      - PA.NUS.FCRF (Official exchange rate LCU per US$)
+      - FM.LD.BOP.ZG (Broad money growth %)
+      - FS.AST.PRVT.GD.ZS (Domestic credit to private sector % GDP)
+      - GF.DD.AI.01 (Bank nonperforming loans to total gross loans %)
+    date_coverage: "2000-2024 (varies by indicator)"
+    historical_completeness: Good for annual macro series; some indicators have gaps
+    transformations_applied: None at source; API returns JSON, converted to tabular
+    methodology_notes: World Bank compiles from official sources (NISR, BNR, IMF); some values are estimates or projections
+    limitations: Annual only; secondary source (not primary BNR/NISR); some indicators may have 1-2 year lag; methodology notes per indicator should be checked
+    warehouse_use: Supporting macro context fact table
+    priority: 2
+
+  # === BNR Financial Sector Statistics (PRIMARY - PDF/web) ===
+  - source_id: BNR-FSS-001
+    source_organization: National Bank of Rwanda (BNR)
+    dataset_name: Financial Sector Statistics
+    source_url: https://www.bnr.rw/Fsstatistics
+    landing_page: https://www.bnr.rw/Fsstatistics
+    retrieval_date: 2026-09-21
+    publication_date: varies by release
+    frequency: Quarterly
+    geographic_scope: Rwanda (banking sector aggregate)
+    unit: FRW (Rwandan Francs)
+    currency: FRW
+    format: PDF / web publications
+    access_type: web_page
+    registration_required: false
+    api_available: false
+    license: Publicly accessible; redistribution status unclear
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - banking_sector_total_assets
+      - gross_loans
+      - customer_deposits
+      - interest_income
+      - operating_income
+      - operating_expenses
+      - profit_after_tax
+      - npl_ratio
+      - capital_adequacy_ratio
+      - liquidity_ratio
+    date_coverage: "Multi-year (exact range requires per-release audit)"
+    historical_completeness: March 2024 report shows 2019-2023 annual FSI data; later reports extend through 2024
+    transformations_applied: None at source; PDF table extraction required
+    methodology_notes: BNR states statistics are based on data reported by licensed financial institutions; published quarterly
+    limitations: Aggregate sector-level only; not a standardized bank-by-bank public dataset; PDF extraction required; report table coverage varies
+    warehouse_use: Core banking sector aggregate fact table
+    priority: 3
+
+  # === BNR MPFSS Reports (PRIMARY - PDF) ===
+  - source_id: BNR-MPFSS-001
+    source_organization: National Bank of Rwanda (BNR)
+    dataset_name: Monetary Policy and Financial Stability Statement
+    source_url: https://www.bnr.rw/documents/MPFSS_March_2024_Final_Booklet.pdf
+    landing_page: https://www.bnr.rw/FinancialStability
+    retrieval_date: 2026-09-21
+    publication_date: "2024-03"
+    frequency: Semiannual (March and September)
+    geographic_scope: Rwanda (banking sector aggregate)
+    unit: FRW; percent (for ratios)
+    currency: FRW
+    format: PDF
+    access_type: direct_download
+    registration_required: false
+    api_available: false
+    license: Publicly accessible; redistribution status unclear
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - "npl_ratio (2019: 4.9%, 2020: 4.5%, 2021: 4.6%, 2022: 3.1%, 2023: 4.1%)"
+      - banking_sector_total_assets
+      - "deposit_rate (9.68% in 2023)"
+      - "lending_rate (16.06% in 2023)"
+      - "central_bank_rate (7.5% year-end 2023)"
+    date_coverage: "2019-2024 (verified from March 2024 and March 2025 reports)"
+    historical_completeness: Good for NPL ratio annual series; other variables need per-report extraction
+    transformations_applied: None at source; PDF table extraction required
+    methodology_notes: Official BNR monetary policy statement; contains historical tables and figures
+    limitations: PDF extraction required; table coverage varies by report; not all variables available in every report
+    warehouse_use: Banking sector NPL ratio and aggregate indicators
+    priority: 4
+
+  # === BNR Exchange Rates (PRIMARY - web) ===
+  - source_id: BNR-FX-001
+    source_organization: National Bank of Rwanda (BNR)
+    dataset_name: Official Exchange Rates
+    source_url: https://www.bnr.rw/FinancialMarket
+    landing_page: https://www.bnr.rw/avgexchangerate
+    retrieval_date: 2026-09-21
+    publication_date: daily (latest available)
+    frequency: Daily; monthly and annual averages available
+    geographic_scope: Rwanda
+    unit: RWF per unit of foreign currency
+    currency: RWF
+    format: Web / XLS
+    access_type: web_page
+    registration_required: false
+    api_available: false
+    license: Publicly accessible; redistribution status unclear
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - rwf_per_usd (buying, selling, mid-rate)
+      - rwf_per_eur
+      - rwf_per_gbp
+      - monthly_average
+      - annual_average
+      - end_period_rate
+    date_coverage: "Daily rates available; historical archive range needs audit"
+    historical_completeness: BNR publishes daily rates; monthly/annual averages; archive depth needs verification
+    transformations_applied: None at source
+    methodology_notes: BNR publishes official exchange rates daily; monthly and annual averages and end-period rates
+    limitations: Archive range not verified; must choose one definition (monthly average vs end-period vs buying/selling/mid)
+    warehouse_use: Exchange rate fact table (RWF/USD focus)
+    priority: 5
+
+  # === NISR GDP (PRIMARY - web publications) ===
+  - source_id: NISR-GDP-001
+    source_organization: National Institute of Statistics of Rwanda (NISR)
+    dataset_name: GDP National Accounts
+    source_url: https://statistics.gov.rw/statistical-publications/gross-domestic-product
+    landing_page: https://statistics.gov.rw/statistical-publications/gross-domestic-product
+    retrieval_date: 2026-09-21
+    publication_date: "2025 (latest annual release)"
+    frequency: Annual and quarterly
+    geographic_scope: Rwanda (national)
+    unit: FRW (current prices); percent (growth rates)
+    currency: FRW
+    format: PDF / web publications
+    access_type: web_page
+    registration_required: false
+    api_available: false
+    license: Publicly accessible; redistribution status unclear
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - "gdp_current_prices (2025: FRW 23,387 billion; 2024: FRW 19,918 billion)"
+      - "gdp_growth_rate (2025: 9.4%)"
+      - quarterly_gdp_growth
+      - sectoral_gdp
+    date_coverage: "Multiple years; 2025 annual and quarterly confirmed"
+    historical_completeness: Publications exist for multiple years; standardized bulk series not verified
+    transformations_applied: None at source; PDF/table extraction required
+    methodology_notes: NISR is the official statistics authority; GDP revisions/rebasing may occur
+    limitations: PDF extraction required; revisions and rebasing affect comparability; annual vs quarterly must not be mixed without documentation
+    warehouse_use: GDP fact table (annual and quarterly where available)
+    priority: 6
+
+  # === BNR CPI/Inflation (PRIMARY - web/PDF) ===
+  - source_id: BNR-CPI-001
+    source_organization: National Bank of Rwanda (BNR) / NISR
+    dataset_name: Monthly Evolution of Consumer Price Index
+    source_url: https://www.bnr.rw/Ecostatistics
+    landing_page: https://www.bnr.rw/Ecostatistics
+    retrieval_date: 2026-09-21
+    publication_date: monthly
+    frequency: Monthly
+    geographic_scope: Rwanda (national)
+    unit: percent (year-on-year)
+    currency: N/A
+    format: PDF / web
+    access_type: web_page
+    registration_required: false
+    api_available: false
+    license: Publicly accessible; redistribution status unclear
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - headline_inflation_yoy
+      - core_inflation
+      - food_inflation
+      - energy_inflation
+      - cpi_index
+    date_coverage: "Monthly publications; exact archive range needs audit"
+    historical_completeness: BNR states monthly CPI evolution documents; World Bank annual series available as backup
+    transformations_applied: None at source
+    methodology_notes: BNR cooperates with NISR on CPI; NISR is the official statistics authority
+    limitations: Not verified as a single consolidated official file; PDF extraction required for historical series
+    warehouse_use: Inflation fact table
+    priority: 7
+
+  # === Selected Bank Disclosures (PRIMARY - PDF, selected banks only) ===
+  - source_id: BANK-IMR-001
+    source_organization: I&M Bank Rwanda Plc
+    dataset_name: Annual Reports and Financial Statements
+    source_url: https://www.imbankgroup.com/rw/reports-presentations-category/annual-reports/
+    landing_page: https://www.imbankgroup.com/rw/reports-presentations-category/annual-reports/
+    retrieval_date: 2026-09-21
+    publication_date: annual
+    frequency: Annual (interim reports also available)
+    geographic_scope: Rwanda (individual bank)
+    unit: FRW
+    currency: FRW
+    format: PDF
+    access_type: direct_download
+    registration_required: false
+    api_available: false
+    license: Publicly accessible (listed company disclosure); redistribution of financial statements subject to bank's terms
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - total_assets
+      - gross_loans
+      - customer_deposits
+      - interest_income
+      - interest_expense
+      - operating_income
+      - operating_expenses
+      - profit_after_tax
+      - npl_ratio
+      - capital_adequacy_ratio
+    date_coverage: "Multiple years; exact range requires per-report audit"
+    historical_completeness: Good for selected years; scope (bank vs group) must be verified per report
+    transformations_applied: None at source; PDF extraction required
+    methodology_notes: Listed on RSE; audited financial statements available
+    limitations: Single bank; not representative of all Rwanda banks; group vs bank scope varies; PDF extraction required
+    warehouse_use: Selected bank-level disclosure module (separate from sector aggregates)
+    priority: 8
+
+  - source_id: BANK-BK-001
+    source_organization: Bank of Kigali Plc
+    dataset_name: Annual Reports and Financial Statements
+    source_url: https://www.bkg.rw/
+    landing_page: https://www.bkg.rw/
+    retrieval_date: 2026-09-21
+    publication_date: annual
+    frequency: Annual (interim reports also available)
+    geographic_scope: Rwanda (individual bank)
+    unit: FRW
+    currency: FRW
+    format: PDF
+    access_type: direct_download
+    registration_required: false
+    api_available: false
+    license: Publicly accessible (listed company disclosure); redistribution subject to bank's terms
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_PRIMARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - total_assets
+      - gross_loans
+      - customer_deposits
+      - interest_income
+      - interest_expense
+      - operating_income
+      - operating_expenses
+      - profit_after_tax
+      - npl_ratio
+      - capital_adequacy_ratio
+    date_coverage: "Multiple years; exact range requires per-report audit"
+    historical_completeness: Good for selected years; largest bank in Rwanda by assets
+    transformations_applied: None at source; PDF extraction required
+    methodology_notes: Listed on RSE; largest Rwandan bank; audited financial statements available
+    limitations: Single bank; PDF extraction required; accounting presentation may vary across years
+    warehouse_use: Selected bank-level disclosure module (separate from sector aggregates)
+    priority: 9
+
+  # === IMF DataMapper (SECONDARY - web) ===
+  - source_id: IMF-MACRO-001
+    source_organization: International Monetary Fund (IMF)
+    dataset_name: IMF DataMapper - Rwanda
+    source_url: https://www.imf.org/external/datamapper/profile/RWA
+    landing_page: https://www.imf.org/external/datamapper/profile/RWA
+    retrieval_date: 2026-09-21
+    publication_date: varies
+    frequency: Annual (some quarterly)
+    geographic_scope: Rwanda (national)
+    unit: varies by indicator
+    currency: varies
+    format: Web / API
+    access_type: web_page
+    registration_required: false
+    api_available: true
+    license: IMF terms; publicly accessible
+    redistribution_status: unclear
+    evidence_classification: VERIFIED_SECONDARY
+    is_observed: true
+    is_derived: false
+    variables:
+      - gdp_growth
+      - inflation
+      - current_account_balance
+      - government_revenue
+      - government_expenditure
+      - public_debt
+    date_coverage: "Multiple years; includes projections (must be distinguished from actuals)"
+    historical_completeness: Good for annual macro; some values are estimates/projections
+    transformations_applied: None at source
+    methodology_notes: IMF compiles from national sources and own estimates; WEO projections must not be treated as observed
+    limitations: Some values are IMF estimates or projections, not observed outturns; must distinguish actuals from projections
+    warehouse_use: Supporting macro context and validation
+    priority: 10
