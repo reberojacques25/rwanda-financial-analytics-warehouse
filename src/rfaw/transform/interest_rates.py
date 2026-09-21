@@ -13,6 +13,11 @@ INDICATOR_MAPPING = {
     "repo rate": "REPO_RATE",
     "reverse repo rate": "REVERSE_REPO_RATE",
     "reserve requirement": "RESERVE_REQUIREMENT",
+    "standing lending facility": "STANDING_LENDING_FACILITY",
+    "standing deposit facility": "STANDING_DEPOSIT_FACILITY",
+    "overnight deposit facility": "OVERNIGHT_DEPOSIT_FACILITY",
+    "refinancing facility": "REFINANCING_FACILITY",
+    "discount rate": "DISCOUNT_RATE",
     "treasury bill": "TBILL_RATE",
     "treasury bond": "TBOND_RATE",
 }
@@ -34,7 +39,11 @@ def transform_interest_rates(raw_df: pd.DataFrame) -> pd.DataFrame:
 
     records = []
     for _, row in raw_df.iterrows():
-        indicator_id = map_indicator(str(row.get("indicator_name", "")))
+        # Use indicator_code from BNR parser if available, otherwise map from name
+        indicator_id = row.get("indicator_code")
+        if pd.isna(indicator_id) or not indicator_id:
+            indicator_id = map_indicator(str(row.get("indicator_name", "")))
+        indicator_id = str(indicator_id)
         period = str(row.get("period_label", ""))
 
         try:
