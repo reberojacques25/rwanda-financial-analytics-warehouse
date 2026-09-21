@@ -1,152 +1,64 @@
 run_date: '2026-09-21'
-pipeline_version: 1.1.0
-sources_ingested_automated: 2
+pipeline_version: 2.0.0
+stages_completed: 6-15
+sources_ingested_automated: 3
 sources_cataloged_total: 10
+warehouse_loaded: true
+warehouse_tables:
+  metadata.sources: 10
+  mart.fact_interest_rates: 1801
+  mart.fact_macro_indicators: 205
+  mart.fact_banking_sector: 45
+  mart.fact_derived_metrics: 702
 records:
   bnr_interest_rates_monthly: 1801
   bnr_interest_rates_annual_derived: 191
   world_bank_macro: 205
-  total: 2197
+  bnr_banking_sector_mpfss: 45
+  derived_metrics: 702
+  opportunity_signals: 5
+  total: 2944
 evidence_classification:
-  VERIFIED_PRIMARY: 1801
+  VERIFIED_PRIMARY: 1846
   VERIFIED_SECONDARY: 205
-  DERIVED: 191
-annual_average_coverage:
-  full_year_12_months: 0
-  bimonthly_or_partial: 191
-indicator_coverage:
-  bnr_indicators:
-  - indicator_id: CBR
-    n_records: 198
-    year_start: '2005'
-    year_end: '2025'
-    min_val: 4.5
-    max_val: 9.0
-  - indicator_id: DEPOSIT_RATE
-    n_records: 231
-    year_start: '2002'
-    year_end: '2025'
-    min_val: 5.51
-    max_val: 11.336088250526018
-  - indicator_id: DISCOUNT_RATE
-    n_records: 150
-    year_start: '2002'
-    year_end: '2016'
-    min_val: 10.0
-    max_val: 14.5
-  - indicator_id: INTERBANK_RATE
-    n_records: 233
-    year_start: '2002'
-    year_end: '2025'
-    min_val: 2.28
-    max_val: 11.902
-  - indicator_id: LENDING_RATE
-    n_records: 233
-    year_start: '2002'
-    year_end: '2025'
-    min_val: 14.16
-    max_val: 17.82
-  - indicator_id: OVERNIGHT_DEPOSIT_FACILITY
-    n_records: 73
-    year_start: '2018'
-    year_end: '2025'
-    min_val: 2.5
-    max_val: 6.5
-  - indicator_id: REFINANCING_FACILITY
-    n_records: 83
-    year_start: '2017'
-    year_end: '2025'
-    min_val: 6.5
-    max_val: 10.25
-  - indicator_id: REPO_RATE
-    n_records: 156
-    year_start: '2009'
-    year_end: '2025'
-    min_val: 1.831
-    max_val: 7.5
-  - indicator_id: RESERVE_REQUIREMENT
-    n_records: 173
-    year_start: '2008'
-    year_end: '2025'
-    min_val: 4.0
-    max_val: 8.0
-  - indicator_id: REVERSE_REPO_RATE
-    n_records: 84
-    year_start: '2009'
-    year_end: '2025'
-    min_val: 0.0
-    max_val: 11.05
-  - indicator_id: STANDING_DEPOSIT_FACILITY
-    n_records: 57
-    year_start: '2012'
-    year_end: '2017'
-    min_val: 4.25
-    max_val: 5.5
-  - indicator_id: STANDING_LENDING_FACILITY
-    n_records: 130
-    year_start: '2012'
-    year_end: '2025'
-    min_val: 5.5
-    max_val: 9.5
-  world_bank_indicators:
-  - indicator_id: DOMESTIC_CREDIT_PRIVATE_GDP
-    n_records: 26
-    year_start: '2000'
-    year_end: '2025'
-    min_val: 8.7322554914854
-    max_val: 24.951035475528
-  - indicator_id: EXCHANGE_RATE_USD
-    n_records: 26
-    year_start: '2000'
-    year_end: '2025'
-    min_val: 389.696216666666
-    max_val: 1428.47827558333
-  - indicator_id: GDP_GROWTH
-    n_records: 26
-    year_start: '2000'
-    year_end: '2025'
-    min_val: -2.77710485515125
-    max_val: 13.1920736288433
-  - indicator_id: GDP_USD
-    n_records: 26
-    year_start: '2000'
-    year_end: '2025'
-    min_val: 1966003468.49117
-    max_val: 16372132990.2271
-  - indicator_id: INFLATION_YOY
-    n_records: 26
-    year_start: '2000'
-    year_end: '2025'
-    min_val: -0.391346748300791
-    max_val: 19.789546746467
-  - indicator_id: REAL_INTEREST_RATE
-    n_records: 25
-    year_start: '2000'
-    year_end: '2024'
-    min_val: -3.62974030867144
-    max_val: 22.6248575482056
-  - indicator_id: WB_DEPOSIT_RATE
-    n_records: 25
-    year_start: '2000'
-    year_end: '2024'
-    min_val: 6.07666666666667
-    max_val: 10.33075
-  - indicator_id: WB_LENDING_RATE
-    n_records: 25
-    year_start: '2000'
-    year_end: '2024'
-    min_val: 15.7791666666667
-    max_val: 17.3333333333333
+  DERIVED: 893
+npl_ratios:
+  source: BNR MPFSS March 2024, Table 18, page 53
+  evidence: VERIFIED_PRIMARY
+  years: 2019-2023
+  values:
+    '2019': 4.9
+    '2020': 4.5
+    '2021': 4.6
+    '2022': 3.1
+    '2023': 4.1
+derived_metric_types:
+- LENDING_DEPOSIT_SPREAD
+- LENDING_VS_CBR
+- DEPOSIT_VS_CBR
+- REAL_LENDING_RATE
+- REAL_DEPOSIT_RATE
+- FX_DEPRECIATION
+- NPL_CHANGE_YOY
+opportunity_signals:
+- HIGH_REAL_LENDING_RATE
+- RISING_NPL
+- FX_DEPRECIATION_PRESSURE
+- GDP_ACCELERATION
+- CREDIT_EXPANSION
+github_pages:
+  url: https://reberojacques25.github.io/rwanda-financial-analytics-warehouse/
+  source: docs/ folder, main branch
+  status: built
 validation_errors: 0
 security_issues: 0
+tests: 26/26 passing
 known_limitations:
-- Only 2 of 10 cataloged sources are automatically ingested (BNR interest rates, World
-  Bank macro)
-- BNR Financial Sector Statistics, MPFSS, NISR GDP, CPI, exchange rates require PDF/web
-  extraction
+- Only 3 of 10 cataloged sources are automatically ingested
+- BNR Financial Sector Statistics, NISR GDP, CPI, exchange rates require PDF/web extraction
 - Bank-level disclosures (I&M, BK) require manual PDF extraction
-- BNR XLS provides bimonthly/quarterly observations, not all 12 months - annual averages
-  use available observations
-- Annual averages for current year (2025) are based on Jan-Mar only
-- BNR/NISR redistribution status unclear - raw data not committed to repository
-- World Bank data is CC BY-4.0 but treated as VERIFIED_SECONDARY (may include estimates)
+- NPL data covers 2019-2023 only (March 2025 MPFSS not yet published)
+- BNR XLS provides bimonthly/quarterly observations, not all 12 months
+- BNR/NISR redistribution status unclear - raw data not committed
+- World Bank data is CC BY-4.0 but treated as VERIFIED_SECONDARY
+- GitHub Pages dashboard shows derived metrics only, not raw observations
